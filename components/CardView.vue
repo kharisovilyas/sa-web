@@ -2,7 +2,7 @@
 <template>
   <v-container fluid fill-height>
     <v-row no-gutters class="flex-column">
-      <v-col v-for="item in items" :key="item.id">
+      <v-col v-for="item in items" :key="item.id" cols="12">
         <v-card
           :class="{ 'custom-card-sorted': item.statusOfSorted }"
           @click="openCardDialog(item)"
@@ -10,9 +10,10 @@
           @mouseleave="hoverCard(false, item.id)"
           ref="customCard"
         >
-          <v-card-title>{{ item.sortedArrayName }}</v-card-title>
+          
+        <v-card-title class="center-text">{{ item.arrayName }}</v-card-title>
           <v-card-text>
-            <div>Date of Sorting: {{ item.dateOfSorted }}</div>
+            <div>Date of Sorting: {{ item.dateOfLoad }}</div>
             <div>Status: {{ item.statusOfSorted ? 'Sorted' : 'Not Sorted' }}</div>
             <!-- Другие поля из item могут быть добавлены здесь -->
           </v-card-text>
@@ -24,6 +25,12 @@
         :dialogVisible="dialogVisible"
         :selectedCard="selectedCard"
         @close="closeCardDialog"
+      />
+      <edit-dialog
+        v-if="editDialogVisible"
+        :selectedCard="selectedCard"
+        @close="closeEditDialog"
+        @submit-edited-array="submitEditedArray"
       />
     </v-row>
   </v-container>
@@ -68,7 +75,7 @@ export default {
 
 <style scoped>
 /* Устанавливаем отступы между карточками */
-.custom-card {
+.v-card {
   margin-bottom: 16px;
   transition: box-shadow 0.3s ease; /* Плавный переход эффекта тени при наведении */
   

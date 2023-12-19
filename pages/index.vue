@@ -1,10 +1,11 @@
 <template>
   <v-container fluid fill-height>
     <v-row no-gutters>
-      <v-col cols="6">
+      <!-- Левая часть (несортированный массив) -->
+      <v-col cols="12">
         <v-row no-gutters class="flex-column" style="height: 100%;">
           <v-col cols="12" style="height: 100%;">
-            <v-label>Мои массивы</v-label>
+            <v-label>Несортированный массив</v-label>
             <floating-button @open-dialog="openDialog" />
             <card-view :items="unsortedItems" />
           </v-col>
@@ -13,7 +14,7 @@
     </v-row>
 
     <!-- ArrayDialog component -->
-    <array-dialog ref="arrayDialogRef" @submit-array="submitArray" />
+    <array-dialog ref="arrayDialogRef" @submit-array="submitArray" @close="fetchData" />
   </v-container>
 </template>
 
@@ -23,19 +24,18 @@ import axios from 'axios';
 import FloatingButton from '~/components/FloatingButton.vue';
 import CardView from '~/components/CardView.vue';
 import ArrayDialog from '~/components/ArrayDialog.vue';
-import SortedCardView from '~/components/SortedCardView.vue'; // Import the new component
+import SortedCardView from '~/components/SortedCardView.vue';
 
 export default {
   components: {
     FloatingButton,
     CardView,
     ArrayDialog,
-    SortedCardView, // Add the new component to the components option
+    SortedCardView,
   },
   data() {
     return {
-      unsortedItems: [],
-      sortedItems: [],
+      unsortedItems: []
     };
   },
   methods: {
@@ -43,14 +43,14 @@ export default {
       this.$refs.arrayDialogRef.openDialog();
     },
     submitArray(newArray) {
-      this.sortedItems = [...this.sortedItems, newArray];
-      this.unsortedItems = [...this.unsortedItems, newArray];
+      const updatedUnsortedItems = this.unsortedItems.filter(item => item.id !== newArray.id);
+      this.unsortedItems = [...updatedUnsortedItems, newArray];
     },
     async fetchData() {
       try {
         // Fetch unsorted items
         const unsortedResponse = await axios.get('http://localhost:8080/api/v1/load-array/get/all');
-        this.unsortedItems = unsortedResponse.data;
+        this.unsortedItems.splice(0, this.unsortedItems.length, ...unsortedResponse.data);
       } catch (error) {
         console.error('Ошибка при получении данных:', error);
       }
